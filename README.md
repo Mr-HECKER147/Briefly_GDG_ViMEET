@@ -4,6 +4,10 @@ Briefly is a Flask-based web application that creates concise summaries from pas
 
 Generated summaries, source information, selected summary length, and original text are saved locally in an SQLite database. Users can browse their history, view individual records, delete summaries, and switch between light and dark themes.
 
+
+**Live app:** [Open Briefly](https://briefly-gdg-vimeet.onrender.com/)
+
+
 ## Features
 
 - Summarize pasted text
