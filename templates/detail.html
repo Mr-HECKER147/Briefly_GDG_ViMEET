@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Summary | Briefly</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <a class="logo" href="{{ url_for('home') }}">Briefly</a>
+            <a class="history-link" href="{{ url_for('history') }}">History</a>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">Dark mode</button>
+        </div>
+    </header>
+
+    <main>
+        <a class="back-link" href="{{ url_for('history') }}">
+            ← Back to history
+        </a>
+
+        <section class="detail-heading">
+            <p class="eyebrow">SAVED SUMMARY</p>
+            <h1>{{ summary['source_name'] }}</h1>
+
+            <p class="detail-meta">
+                {{ summary['summary_length']|capitalize }} summary ·
+                {{ summary['created_at'] }}
+            </p>
+        </section>
+
+        <section class="result">
+            <p class="result-label">SUMMARY</p>
+            <div class="summary-text">
+                {{ summary['summary_text'] }}
+            </div>
+        </section>
+
+        <section class="original-text">
+            <p class="result-label">ORIGINAL TEXT</p>
+            <div class="summary-text">
+                {{ summary['original_text'] }}
+            </div>
+        </section>
+
+        <form class="detail-delete-form" method="post" action="{{ url_for('remove_summary', summary_id=summary['id']) }}" onsubmit="return confirm('Delete this saved summary? This cannot be undone.');">
+            <button class="delete-button" type="submit">Delete summary</button>
+        </form>
+    </main>
+
+</body>
+</html>

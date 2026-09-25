@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Briefly | Document Summarizer</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</head>
+<body>
+
+    <header>
+    <div class="navbar">
+            <a class="logo" href="{{ url_for('home') }}">Briefly</a>
+
+        <a class="history-link" href="{{ url_for('history') }}">
+            History
+        </a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">Dark mode</button>
+    </div>
+</header>
+
+    <main>
+        <section class="intro">
+            <p class="eyebrow">DOCUMENT SUMMARIZER</p>
+
+            <h1>Long document.<br>Shorter read.</h1>
+
+            <p class="subtitle">
+                Paste text or upload a TXT/PDF file and get a clear,
+                readable summary in a few seconds.
+            </p>
+        </section>
+
+        <section class="card">
+    <form method="POST" enctype="multipart/form-data">
+        <label for="text">Paste your text</label>
+
+        <textarea
+            id="text"
+            name="text"
+            placeholder="Paste any text here and click Generate summary..."
+        >{{ text }}</textarea>
+
+        <div class="options">
+            <div class="option">
+                <label for="file">Upload a file</label>
+                <input
+                    id="file"
+                    name="file"
+                    type="file"
+                    accept=".txt,.pdf"
+                >
+            </div>
+
+            <div class="option">
+                <label for="length">Summary length</label>
+                <select id="length" name="length">
+                    <option value="short" {% if length == "short" %}selected{% endif %}>Short</option>
+                    <option value="medium" {% if length == "medium" %}selected{% endif %}>Medium</option>
+                    <option value="detailed" {% if length == "detailed" %}selected{% endif %}>Detailed</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit">Generate summary</button>
+    </form>
+</section>
+
+        {% if error %}
+    <section class="error-box">
+        <p>{{ error }}</p>
+    </section>
+{% endif %}
+
+{% if summary %}
+    <section class="result">
+        <p class="result-label">SUMMARY</p>
+
+        {% if file_name %}
+            <p class="file-info">Source: {{ file_name }}</p>
+        {% endif %}
+
+        <div class="summary-text">{{ summary }}</div>
+    </section>
+{% endif %}
+
+        <p class="footer-note">
+            Supported formats: TXT and PDF. Uploaded files are limited to 5 MB.
+        </p>
+    </main>
+
+</body>
+</html> 
