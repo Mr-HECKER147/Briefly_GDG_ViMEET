@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, abort, redirect, render_template, request, url_for
+from flask import Flask, abort, redirect, render_template, request, send_from_directory, url_for
 from groq import Groq
 from pypdf import PdfReader
 from database import (
@@ -22,6 +22,11 @@ SUMMARY_LENGTHS = {"short", "medium", "detailed"}
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
 create_table()
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='favicon.svg'))
 
 
 def extract_text_from_file(uploaded_file):
@@ -141,6 +146,7 @@ def upload_too_large(_error):
         text="",
         length="medium",
     ), 413
+
 
 @app.route("/history")
 def history():
