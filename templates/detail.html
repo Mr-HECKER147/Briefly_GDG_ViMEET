@@ -13,6 +13,7 @@
         href="{{ url_for('static', filename='style.css') }}"
     >
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='summary-actions.js') }}" defer></script>
 </head>
 <body>
 
@@ -41,8 +42,13 @@
 
         <section class="result">
             <p class="result-label">SUMMARY</p>
-            <div class="summary-text">
+            <div class="summary-text" data-summary-content>
                 {{ summary['summary_text'] }}
+            </div>
+            <div class="summary-actions">
+                <button type="button" class="secondary-button" data-copy-summary>Copy summary</button>
+                <a class="secondary-button" href="{{ url_for('download_summary_pdf', summary_id=summary['id']) }}">Download PDF</a>
+                <span class="copy-status" data-copy-status aria-live="polite"></span>
             </div>
         </section>
 

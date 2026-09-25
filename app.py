@@ -1,9 +1,15 @@
 import os
+from io import BytesIO
+from xml.sax.saxutils import escape
 
 from dotenv import load_dotenv
-from flask import Flask, abort, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, abort, redirect, render_template, request, send_file, url_for
 from groq import Groq
 from pypdf import PdfReader
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from database import (
     create_table,
     delete_summary,
@@ -22,11 +28,6 @@ SUMMARY_LENGTHS = {"short", "medium", "detailed"}
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
 create_table()
-
-
-@app.route('/favicon.ico')
-def favicon():
-    return redirect(url_for('static', filename='favicon.svg'))
 
 
 def extract_text_from_file(uploaded_file):
@@ -92,6 +93,7 @@ def home():
     filename = ""
     text = ""
     length = "medium"
+    summary_id = None
 
     if request.method == "POST":
         text = request.form.get("text", "").strip()
@@ -122,7 +124,7 @@ def home():
             if summary:
                 source_name = filename or "Pasted text"
                 try:
-                    save_summary(source_name, text, summary, length)
+                    summary_id = save_summary(source_name, text, summary, length)
                 except Exception:
                     error = "Summary generated, but it could not be saved to history."
 
@@ -133,6 +135,7 @@ def home():
         file_name=filename,
         text=text,
         length=length,
+        summary_id=summary_id,
     )
 
 
@@ -146,7 +149,6 @@ def upload_too_large(_error):
         text="",
         length="medium",
     ), 413
-
 
 @app.route("/history")
 def history():
@@ -168,6 +170,42 @@ def summary_detail(summary_id):
     return render_template(
         "detail.html",
         summary=summary
+    )
+
+
+@app.get("/history/<int:summary_id>/pdf")
+def download_summary_pdf(summary_id):
+    summary = get_summary_by_id(summary_id)
+    if summary is None:
+        abort(404)
+
+    styles = getSampleStyleSheet()
+    styles["Title"].textColor = colors.HexColor("#183f39")
+    story = [
+        Paragraph("Briefly Summary", styles["Title"]),
+        Spacer(1, 12),
+        Paragraph(escape(summary["source_name"]), styles["Heading2"]),
+        Spacer(1, 8),
+    ]
+    formatted_summary = "<br/>".join(
+        escape(line) for line in summary["summary_text"].splitlines()
+    )
+    story.append(Paragraph(formatted_summary, styles["BodyText"]))
+
+    pdf = BytesIO()
+    document = SimpleDocTemplate(
+        pdf,
+        pagesize=letter,
+        title=f"Briefly summary - {summary['source_name']}",
+        author="Briefly",
+    )
+    document.build(story)
+    pdf.seek(0)
+    return send_file(
+        pdf,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"briefly-summary-{summary_id}.pdf",
     )
 
 

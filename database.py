@@ -30,7 +30,7 @@ def create_table():
 def save_summary(source_name, original_text, summary_text, summary_length):
     with closing(get_connection()) as connection:
         with connection:
-            connection.execute(
+            cursor = connection.execute(
                 """
                 INSERT INTO summaries (
                     source_name,
@@ -42,6 +42,7 @@ def save_summary(source_name, original_text, summary_text, summary_length):
                 """,
                 (source_name, original_text, summary_text, summary_length),
             )
+            return cursor.lastrowid
 
 def get_all_summaries():
     with closing(get_connection()) as connection:

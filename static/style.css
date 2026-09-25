@@ -201,6 +201,40 @@ button:hover {
     font-size: 0.82rem;
 }
 
+.summary-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    margin: 0;
+    padding: 9px 13px;
+    border: 1px solid #b9c9c1;
+    border-radius: 5px;
+    background: #fffefa;
+    color: #1d574e;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.secondary-button:hover {
+    background: #edf3ef;
+}
+
+.copy-status {
+    color: #517169;
+    font-size: 0.82rem;
+}
+
 .history-link,
 .back-link {
     color: #1d574e;
@@ -475,4 +509,18 @@ html[data-theme="dark"] .delete-button {
 
 html[data-theme="dark"] .delete-button:hover {
     background: #392426;
+}
+
+html[data-theme="dark"] .secondary-button {
+    border-color: #455e51;
+    background: #202925;
+    color: #b8d8cb;
+}
+
+html[data-theme="dark"] .secondary-button:hover {
+    background: #2b3731;
+}
+
+html[data-theme="dark"] .copy-status {
+    color: #aacdbd;
 }

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Briefly | Document Summarizer</title>
-    
+
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
 
     <link
@@ -13,6 +13,7 @@
         href="{{ url_for('static', filename='style.css') }}"
     >
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='summary-actions.js') }}" defer></script>
 </head>
 <body>
 
@@ -88,7 +89,14 @@
             <p class="file-info">Source: {{ file_name }}</p>
         {% endif %}
 
-        <div class="summary-text">{{ summary }}</div>
+        <div class="summary-text" data-summary-content>{{ summary }}</div>
+        <div class="summary-actions">
+            <button type="button" class="secondary-button" data-copy-summary>Copy summary</button>
+            {% if summary_id %}
+                <a class="secondary-button" href="{{ url_for('download_summary_pdf', summary_id=summary_id) }}">Download PDF</a>
+            {% endif %}
+            <span class="copy-status" data-copy-status aria-live="polite"></span>
+        </div>
     </section>
 {% endif %}
 
