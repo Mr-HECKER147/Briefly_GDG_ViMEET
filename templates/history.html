@@ -6,9 +6,7 @@
 
     <title>History | Briefly</title>
 
-    
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-
 
     <link
         rel="stylesheet"
@@ -19,12 +17,25 @@
 <body>
 
     <header>
-        <div class="navbar">
-            <a class="logo" href="{{ url_for('home') }}">Briefly</a>
-            <a class="history-link" href="{{ url_for('history') }}" aria-current="page">History</a>
-            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">Dark mode</button>
+    <div class="navbar">
+        <a class="logo" href="/">Briefly</a>
+
+        <div class="nav-links">
+            <a class="history-link" href="/history">
+                History
+            </a>
+
+            <span class="username">
+                {{ session.get("username") }}
+            </span>
+
+            <form method="post" action="{{ url_for('logout') }}" class="nav-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="history-link nav-button" type="submit">Log out</button>
+            </form>
         </div>
-    </header>
+    </div>
+</header>
 
     <main>
         <section class="page-heading">
@@ -48,6 +59,7 @@
                             <p class="history-meta">{{ item['summary_length']|capitalize }} summary</p>
                         </a>
                         <form method="post" action="{{ url_for('remove_summary', summary_id=item['id']) }}" onsubmit="return confirm('Delete this saved summary? This cannot be undone.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button class="delete-button" type="submit">Delete</button>
                         </form>
                     </article>

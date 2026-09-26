@@ -1,9 +1,26 @@
 import os
+import sqlite3
+from functools import wraps
 from io import BytesIO
 from xml.sax.saxutils import escape
 
 from dotenv import load_dotenv
-from flask import Flask, abort, redirect, render_template, request, send_file, url_for
+from flask import (
+    Flask,
+    abort,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for
+)
+from flask_wtf.csrf import CSRFProtect
+
+from werkzeug.security import (
+    check_password_hash,
+    generate_password_hash
+)
 from groq import Groq
 from pypdf import PdfReader
 from reportlab.lib import colors
@@ -11,10 +28,12 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from database import (
-    create_table,
+    initialize_database,
+    create_user,
     delete_summary,
     get_all_summaries,
     get_summary_by_id,
+    get_user_by_username,
     save_summary
 )
 
@@ -27,8 +46,27 @@ SUMMARY_LENGTHS = {"short", "medium", "detailed"}
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
-create_table()
+secret_key = os.getenv("SECRET_KEY")
+if not secret_key:
+    raise RuntimeError("Set SECRET_KEY in the environment before starting Briefly.")
+app.config["SECRET_KEY"] = secret_key
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.getenv(
+    "SESSION_COOKIE_SECURE", "true"
+).lower() in {"1", "true", "yes"}
+CSRFProtect(app)
+initialize_database()
 
+
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if not session.get("user_id"):
+            return redirect(url_for("login"))
+        return view(*args, **kwargs)
+
+    return wrapped_view
 
 def extract_text_from_file(uploaded_file):
     """Extract text from a supported uploaded document."""
@@ -87,6 +125,7 @@ Document:
 
 
 @app.route("/", methods=["GET", "POST"])
+@login_required
 def home():
     summary = ""
     error = ""
@@ -124,7 +163,9 @@ def home():
             if summary:
                 source_name = filename or "Pasted text"
                 try:
-                    summary_id = save_summary(source_name, text, summary, length)
+                    summary_id = save_summary(
+                        session["user_id"], source_name, text, summary, length
+                    )
                 except Exception:
                     error = "Summary generated, but it could not be saved to history."
 
@@ -151,8 +192,9 @@ def upload_too_large(_error):
     ), 413
 
 @app.route("/history")
+@login_required
 def history():
-    summaries = get_all_summaries()
+    summaries = get_all_summaries(session["user_id"])
 
     return render_template(
         "history.html",
@@ -161,8 +203,9 @@ def history():
 
 
 @app.route("/history/<int:summary_id>")
+@login_required
 def summary_detail(summary_id):
-    summary = get_summary_by_id(summary_id)
+    summary = get_summary_by_id(summary_id, session["user_id"])
 
     if summary is None:
         abort(404)
@@ -174,8 +217,9 @@ def summary_detail(summary_id):
 
 
 @app.get("/history/<int:summary_id>/pdf")
+@login_required
 def download_summary_pdf(summary_id):
-    summary = get_summary_by_id(summary_id)
+    summary = get_summary_by_id(summary_id, session["user_id"])
     if summary is None:
         abort(404)
 
@@ -210,10 +254,81 @@ def download_summary_pdf(summary_id):
 
 
 @app.post("/history/<int:summary_id>/delete")
+@login_required
 def remove_summary(summary_id):
-    delete_summary(summary_id)
+    delete_summary(summary_id, session["user_id"])
     return redirect(url_for("history"))
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    error = ""
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+
+        if not username or not password or not confirm_password:
+            error = "Please fill in all fields."
+
+        elif len(username) < 3:
+            error = "Username must contain at least 3 characters."
+
+        elif len(password) < 8:
+            error = "Password must contain at least 8 characters."
+
+        elif password != confirm_password:
+            error = "Passwords do not match."
+
+        elif get_user_by_username(username):
+            error = "That username is already taken."
+
+        else:
+            password_hash = generate_password_hash(password)
+            try:
+                create_user(username, password_hash)
+            except sqlite3.IntegrityError:
+                error = "That username is already taken."
+            else:
+                return redirect(url_for("login"))
+
+    return render_template(
+        "register.html",
+        error=error
+    )
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = ""
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        user = get_user_by_username(username)
+
+        if not user:
+            error = "Invalid username or password."
+
+        elif not check_password_hash(user["password_hash"], password):
+            error = "Invalid username or password."
+
+        else:
+            session.clear()
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+
+            return redirect(url_for("home"))
+
+    return render_template(
+        "login.html",
+        error=error
+    )
+@app.post("/logout")
+def logout():
+    session.clear()
+
+    return redirect(url_for("login"))
 
 if __name__ == "__main__":
     app.run(debug=os.getenv("FLASK_DEBUG") == "1")

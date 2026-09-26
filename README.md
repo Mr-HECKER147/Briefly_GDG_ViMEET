@@ -2,11 +2,9 @@
 
 Briefly is a Flask-based web application that creates concise summaries from pasted text or uploaded TXT/PDF files using the Groq API.
 
-Generated summaries, source information, selected summary length, and original text are saved locally in an SQLite database. Users can browse their history, view individual records, delete summaries, and switch between light and dark themes.
-
+Users can register and log in to create private summaries. Each saved summary is associated with its owner in SQLite. Users can browse, download, copy, and delete their own summaries.
 
 **Live app:** [Open Briefly](https://briefly-gdg-vimeet.onrender.com/)
-
 
 ## Features
 
@@ -22,15 +20,20 @@ Generated summaries, source information, selected summary length, and original t
 - Limit uploads to 5 MB
 - Limit extracted input text to 25,000 characters
 - Show clear error messages for invalid files, unreadable PDFs, and API failures
+- Register and log in with a username and password
+- Keep summary history private to each account
+- Copy summaries or download them as PDFs
 
 ## Tech Stack
 
 - Python
 - Flask
+- Flask-WTF for CSRF protection
 - Groq API
 - `openai/gpt-oss-20b` model
 - SQLite
 - pypdf
+- ReportLab
 - HTML and CSS
 
 ## Project Structure
@@ -45,9 +48,14 @@ Briefly/
 ├── templates/
 │   ├── index.html
 │   ├── history.html
-│   └── detail.html
+│   ├── detail.html
+│   ├── login.html
+│   └── register.html
 └── static/
-    └── style.css
+    ├── favicon.svg
+    ├── style.css
+    ├── summary-actions.js
+    └── theme.js
 ```
 
 ## Setup
@@ -71,9 +79,15 @@ Create a `.env` file in the project folder and add:
 
 ```env
 GROQ_API_KEY=your_api_key
+SECRET_KEY=your_random_secret_key
+SESSION_COOKIE_SECURE=false
 ```
 
+Generate a secret key with `python -c "import secrets; print(secrets.token_hex(32))"`. Set `SESSION_COOKIE_SECURE=true` on the HTTPS deployment. Keep `.env` out of GitHub.
+
 Do not upload the `.env` file to GitHub.
+
+On Render, add `GROQ_API_KEY` and `SECRET_KEY` as environment variables and set `SESSION_COOKIE_SECURE=true`. SQLite is the configured database. To preserve it on Render, use a persistent disk and set `DATABASE_PATH` to a file on its mount (for example, `/var/data/summaries.db`). Render free web services do not support persistent disks.
 
 ## Run Locally
 
@@ -95,7 +109,7 @@ Open the local address shown in the terminal, usually:
 http://127.0.0.1:5000/
 ```
 
-The application creates `summaries.db` automatically when it starts.
+The application creates or updates the database tables automatically when it starts. Set `DATABASE_PATH` to use a different SQLite file location.
 
 ## How to Use
 
@@ -104,10 +118,11 @@ The application creates `summaries.db` automatically when it starts.
 3. Select **Short**, **Medium**, or **Detailed**.
 4. Click **Generate Summary**.
 5. View the generated AI summary.
-6. Open **History** to view previously saved summaries.
+6. Open **History** to view your saved summaries.
 7. Click a saved record to see its complete summary and original text.
 8. Delete unwanted summaries from the History or detail page.
 9. Use the theme toggle to switch between light and dark mode.
+10. Copy the summary or download it as a PDF from below the result.
 
 ## File Support and Limits
 
@@ -123,6 +138,7 @@ Briefly uses SQLite for local storage.
 
 Each successful summary stores:
 
+- The account that owns it
 - Source name or uploaded file name
 - Original text
 - Generated summary
@@ -132,16 +148,14 @@ Each successful summary stores:
 ## Notes
 
 - The SQLite database file `summaries.db` is ignored by Git because it contains local user history.
-- The `.env` file is ignored by Git because it contains the private Groq API key.
-- For cloud deployment, a hosted database such as PostgreSQL can replace SQLite for persistent storage.
+- The `.env` file is ignored by Git because it contains API and session secrets.
+- Existing summaries created before account ownership was added remain unassigned and are hidden from account histories.
+- The deployed service needs a persistent database or filesystem disk to keep accounts and summaries across restarts and redeploys.
 
 ## Future Improvements
 
-- User authentication
-- Per-user history
 - Search and filter saved summaries
 - Tags and categories
-- Export summaries as PDF
 - OCR for scanned PDFs
 - PostgreSQL database for persistent cloud storage
 

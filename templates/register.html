@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create account | Briefly</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <a class="logo" href="/">Briefly</a>
+
+            <a class="history-link" href="/login">
+                Log in
+            </a>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode">Dark mode</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="auth-card">
+            <p class="eyebrow">CREATE ACCOUNT</p>
+
+            <h1>Start saving your summaries.</h1>
+
+            <p class="subtitle">
+                Create a simple account to keep your future history private.
+            </p>
+
+            {% if error %}
+                <section class="error-box">
+                    <p>{{ error }}</p>
+                </section>
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    minlength="3"
+                    required
+                    autofocus
+                >
+
+                <label for="password">Password</label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    minlength="8"
+                    required
+                >
+
+                <label for="confirm_password">Confirm password</label>
+                <input
+                    id="confirm_password"
+                    name="confirm_password"
+                    type="password"
+                    minlength="8"
+                    required
+                >
+
+                <button type="submit">Create account</button>
+            </form>
+
+            <p class="auth-switch">
+                Already have an account?
+                <a href="/login">Log in</a>
+            </p>
+        </section>
+    </main>
+
+</body>
+</html>

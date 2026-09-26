@@ -19,12 +19,22 @@
 
     <header>
     <div class="navbar">
-            <a class="logo" href="{{ url_for('home') }}">Briefly</a>
+        <a class="logo" href="/">Briefly</a>
 
-        <a class="history-link" href="{{ url_for('history') }}">
-            History
-        </a>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">Dark mode</button>
+        <div class="nav-links">
+            <a class="history-link" href="/history">
+                History
+            </a>
+
+            <span class="username">
+                {{ session.get("username") }}
+            </span>
+
+            <form method="post" action="{{ url_for('logout') }}" class="nav-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="history-link nav-button" type="submit">Log out</button>
+            </form>
+        </div>
     </div>
 </header>
 
@@ -42,6 +52,7 @@
 
         <section class="card">
     <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="text">Paste your text</label>
 
         <textarea

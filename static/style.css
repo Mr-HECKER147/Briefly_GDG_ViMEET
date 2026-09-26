@@ -458,7 +458,8 @@ html[data-theme="dark"] .empty-state p {
 html[data-theme="dark"] .card,
 html[data-theme="dark"] .history-card,
 html[data-theme="dark"] .empty-state,
-html[data-theme="dark"] .original-text {
+html[data-theme="dark"] .original-text,
+html[data-theme="dark"] .auth-card {
     border-color: #35423c;
     background: #202925;
     color: #e3e9e5;
@@ -470,7 +471,8 @@ html[data-theme="dark"] .history-card:hover {
 
 html[data-theme="dark"] textarea,
 html[data-theme="dark"] select,
-html[data-theme="dark"] input[type="file"] {
+html[data-theme="dark"] input[type="file"],
+html[data-theme="dark"] .auth-form input {
     border-color: #45544c;
     background: #171e1b;
     color: #e3e9e5;
@@ -523,4 +525,107 @@ html[data-theme="dark"] .secondary-button:hover {
 
 html[data-theme="dark"] .copy-status {
     color: #aacdbd;
+}
+
+html[data-theme="dark"] .auth-switch {
+    color: #aab7b1;
+}
+
+html[data-theme="dark"] .auth-switch a {
+    color: #9fc8b8;
+}
+
+.auth-card {
+    max-width: 520px;
+    margin: 20px auto;
+    padding: 30px;
+    border: 1px solid #d6d8d1;
+    border-radius: 8px;
+    background: #fffefa;
+    box-shadow: 0 15px 32px rgba(32, 49, 46, 0.06);
+}
+
+.auth-card h1 {
+    font-size: clamp(2rem, 5vw, 3.3rem);
+}
+
+.auth-form {
+    margin-top: 26px;
+}
+
+.auth-form input {
+    width: 100%;
+    min-height: 43px;
+    margin-bottom: 18px;
+    padding: 10px;
+    border: 1px solid #cfd4cc;
+    border-radius: 5px;
+    color: #263633;
+    background: #fdfdf9;
+    font: inherit;
+    outline: none;
+}
+
+.auth-form input:focus {
+    border-color: #5c8b81;
+}
+
+.auth-form button {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.auth-switch {
+    margin: 22px 0 0;
+    color: #64716d;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.auth-switch a {
+    color: #1d574e;
+    font-weight: 600;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.nav-form {
+    margin: 0;
+}
+
+.nav-button {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    background: transparent;
+}
+
+.username {
+    color: #31544d;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+html[data-theme="dark"] .username {
+    color: #b8d7cf;
+}
+
+@media (max-width: 600px) {
+    .nav-links {
+        gap: 10px;
+    }
+
+    .username {
+        display: none;
+    }
 }

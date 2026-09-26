@@ -1,4 +1,5 @@
 Flask
+Flask-WTF
 groq
 pypdf
 python-dotenv

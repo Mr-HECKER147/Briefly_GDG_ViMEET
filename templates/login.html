@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Log in | Briefly</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <a class="logo" href="/">Briefly</a>
+
+            <a class="history-link" href="/register">
+                Create account
+            </a>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode">Dark mode</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="auth-card">
+            <p class="eyebrow">WELCOME BACK</p>
+
+            <h1>Log in to Briefly.</h1>
+
+            <p class="subtitle">
+                Access your private document summaries.
+            </p>
+
+            {% if error %}
+                <section class="error-box">
+                    <p>{{ error }}</p>
+                </section>
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    autofocus
+                >
+
+                <label for="password">Password</label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                >
+
+                <button type="submit">Log in</button>
+            </form>
+
+            <p class="auth-switch">
+                New to Briefly?
+                <a href="/register">Create an account</a>
+            </p>
+        </section>
+    </main>
+
+</body>
+</html>
