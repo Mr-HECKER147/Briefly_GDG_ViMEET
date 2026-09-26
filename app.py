@@ -59,6 +59,11 @@ CSRFProtect(app)
 initialize_database()
 
 
+@app.get("/favicon.ico")
+def favicon():
+    return redirect(url_for("static", filename="favicon.svg"))
+
+
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
