@@ -63,8 +63,8 @@ Briefly/
 ### 1. Clone the repository
 
 ```bash
-git clone YOUR_REPOSITORY_LINK
-cd YOUR_PROJECT_FOLDER
+git clone https://github.com/Mr-HECKER147/Briefly_GDG_ViMEET/
+cd Briefly_GDG_ViMEET
 ```
 
 ### 2. Install dependencies
@@ -72,22 +72,6 @@ cd YOUR_PROJECT_FOLDER
 ```bash
 pip install -r requirements.txt
 ```
-
-### 3. Add your Groq API key
-
-Create a `.env` file in the project folder and add:
-
-```env
-GROQ_API_KEY=your_api_key
-SECRET_KEY=your_random_secret_key
-SESSION_COOKIE_SECURE=false
-```
-
-Generate a secret key with `python -c "import secrets; print(secrets.token_hex(32))"`. Set `SESSION_COOKIE_SECURE=true` on the HTTPS deployment. Keep `.env` out of GitHub.
-
-Do not upload the `.env` file to GitHub.
-
-On Render, add `GROQ_API_KEY` and `SECRET_KEY` as environment variables and set `SESSION_COOKIE_SECURE=true`. SQLite is the configured database. To preserve it on Render, use a persistent disk and set `DATABASE_PATH` to a file on its mount (for example, `/var/data/summaries.db`). Render free web services do not support persistent disks.
 
 ## Run Locally
 
@@ -147,17 +131,7 @@ Each successful summary stores:
 
 ## Notes
 
-- The SQLite database file `summaries.db` is ignored by Git because it contains local user history.
-- The `.env` file is ignored by Git because it contains API and session secrets.
-- Existing summaries created before account ownership was added remain unassigned and are hidden from account histories.
-- The deployed service needs a persistent database or filesystem disk to keep accounts and summaries across restarts and redeploys.
-
-## Future Improvements
-
-- Search and filter saved summaries
-- Tags and categories
-- OCR for scanned PDFs
-- PostgreSQL database for persistent cloud storage
+- You need create a .env file and add API key and secret key there for the summarise to work
 
 ## Author
 
